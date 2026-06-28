@@ -1,6 +1,6 @@
 # svelte-app
 
-Este projeto usa Docker Compose para desenvolver e rodar localmente uma aplicação svelte-app em `svelte-app`.
+Este projeto usa Docker Compose para desenvolver e rodar localmente uma aplicação svelte-app em `svelte-app` sem a necessidade do Node ou outra ferramenta de desenvolvimento.
 
 ## Pré-requisitos
 
