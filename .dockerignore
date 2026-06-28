@@ -1,0 +1,10 @@
+node_modules
+dist
+build
+Dockerfile
+Dockerfile.dev
+Dockerfile.prod
+Dockerfile.certs
+Dockerfile.setup
+.git
+.gitignore

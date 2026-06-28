@@ -1,0 +1,17 @@
+# Dockerfile para gerar certificados SSL usando OpenSSL
+FROM alpine:3.18
+
+# Instala o OpenSSL para gerar certificados
+RUN apk add --no-cache openssl
+
+# Define o diretório de trabalho
+WORKDIR /app
+
+# Copia o script de geração de certificados para o contêiner
+COPY docker/generate-cert.sh /app/generate-cert.sh
+
+# Torna o script executável
+RUN chmod +x /app/generate-cert.sh
+
+# Gera os certificados ao iniciar o contêiner
+CMD ["/app/generate-cert.sh"]

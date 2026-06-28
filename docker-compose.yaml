@@ -1,0 +1,53 @@
+services:
+  # Setup service to initialize the svelte-app project
+  setup:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.setup
+    working_dir: /app
+    volumes:
+      - .:/app
+    command: sh -lc "npm create vite@latest svelte-app -- --template svelte-ts --force && cd svelte-app && npm install"
+
+  certs:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.certs
+    volumes:
+      - ./certs:/certs
+    healthcheck:
+      test: ["CMD-SHELL", "test -f /certs/frontend.local.pem && test -f /certs/frontend.local-key.pem"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+
+  # Ambiente de desenvolvimento
+  frontend-dev:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.dev
+    depends_on:
+      - certs
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./svelte-app:/app/svelte-app
+      - /app/svelte-app/node_modules
+      - ./certs:/certs
+    command: sh -lc "VITE_HTTPS=true HTTPS_CERT=/certs/frontend.local.pem HTTPS_KEY=/certs/frontend.local-key.pem npm run dev"
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+      - HOST=0.0.0.0
+
+  # Ambiente de produção
+  frontend-prod:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.prod
+    depends_on:
+      - certs
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./certs:/etc/nginx/certs

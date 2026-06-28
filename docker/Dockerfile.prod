@@ -1,0 +1,32 @@
+# Dockerfile para produção do Adminer Frontend
+FROM node:24-alpine as builder
+
+# Define o diretório de trabalho
+WORKDIR /app
+
+# Copia os arquivos de configuração do npm para o contêiner
+COPY svelte-app/package*.json ./
+
+# Instala as dependências do projeto
+RUN npm install
+
+# Copia o restante do código da aplicação
+COPY svelte-app .
+
+# Constrói a aplicação para produção
+RUN npm run build
+
+# Estágio 2: Servir os arquivos estáticos usando Nginx
+FROM nginx:alpine
+
+# Copia os arquivos de build do estágio anterior para o diretório padrão do Nginx
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+# Copia o arquivo de configuração do Nginx
+COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
+
+# Expõe a porta 80 e 443 do Nginx
+EXPOSE 80 443
+
+# Define o comando padrão para iniciar a aplicação em modo de desenvolvimento
+CMD ["nginx", "-g", "daemon off;"]
